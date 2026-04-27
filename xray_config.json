@@ -109,25 +109,6 @@
       }
     },
     {
-      "tag": "VLESS mKCP",
-      "listen": "0.0.0.0",
-      "port": 2100,
-      "protocol": "vless",
-      "settings": {
-        "clients": [],
-        "decryption": "none"
-      },
-      "streamSettings": {
-        "network": "kcp",
-        "security": "none",
-        "kcpSettings": {
-          "header": {
-            "type": "none"
-          }
-        }
-      }
-    },
-    {
       "tag": "VMess WebSocket",
       "listen": "0.0.0.0",
       "port": 2082,
@@ -140,24 +121,6 @@
         "security": "none",
         "wsSettings": {
           "path": "/vmess"
-        }
-      }
-    },
-    {
-      "tag": "VMess mKCP",
-      "listen": "0.0.0.0",
-      "port": 2101,
-      "protocol": "vmess",
-      "settings": {
-        "clients": []
-      },
-      "streamSettings": {
-        "network": "kcp",
-        "security": "none",
-        "kcpSettings": {
-          "header": {
-            "type": "none"
-          }
         }
       }
     },

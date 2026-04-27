@@ -90,8 +90,6 @@ The default `xray_config.json` enables these inbound ports:
 2097 - VMess gRPC, service vmess-grpc
 2098 - Trojan WebSocket, path /trojan
 2099 - Trojan gRPC, service trojan-grpc
-2100 - VLESS mKCP
-2101 - VMess mKCP
 ```
 
 Open these ports on the server firewall if you want to use all protocols.

@@ -39,13 +39,56 @@ docker compose logs -f
 Create the first sudo admin:
 
 ```bash
-docker compose exec marzban marzban-cli admin create --sudo
+docker compose exec marzban marzban-cli admin create -u admin --sudo
 ```
 
-The dashboard is available at:
+Marzban runs on `127.0.0.1:8000` when SSL files are not configured. Use Nginx to expose it through the public domain and the internal IP.
+
+## Nginx
+
+Install Nginx and Certbot:
+
+```bash
+sudo apt update
+sudo apt install -y nginx certbot python3-certbot-nginx
+```
+
+Create `/etc/nginx/sites-available/marzban`:
+
+```nginx
+server {
+    listen 80;
+    server_name firezone.mark-sandbox.ru INTERNAL_SERVER_IP;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Replace `INTERNAL_SERVER_IP` with the real internal server IP. Enable the site:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/marzban /etc/nginx/sites-enabled/marzban
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+Issue the public certificate:
+
+```bash
+sudo certbot --nginx -d firezone.mark-sandbox.ru
+```
+
+The dashboard will be available at:
 
 ```text
-http://SERVER_IP:8000/dashboard/
+https://firezone.mark-sandbox.ru/dashboard/
+http://INTERNAL_SERVER_IP/dashboard/
 ```
 
 ## Proxy Ports

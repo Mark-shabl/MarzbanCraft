@@ -8,8 +8,9 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
 from app import app, logger
-from config import (DEBUG, UVICORN_HOST, UVICORN_PORT, UVICORN_SSL_CERTFILE,
-                    UVICORN_SSL_KEYFILE, UVICORN_SSL_CA_TYPE, UVICORN_UDS)
+from config import (ALLOW_INSECURE_HTTP, DEBUG, UVICORN_HOST, UVICORN_PORT,
+                    UVICORN_SSL_CERTFILE, UVICORN_SSL_KEYFILE,
+                    UVICORN_SSL_CA_TYPE, UVICORN_UDS)
 
 
 def validate_cert_and_key(cert_file_path, key_file_path, ca_type):
@@ -68,8 +69,18 @@ if __name__ == "__main__":
         if UVICORN_UDS:
             bind_args['uds'] = UVICORN_UDS
         else:
+            if ALLOW_INSECURE_HTTP:
+                logger.warning(f"""
+{click.style('IMPORTANT!', blink=True, bold=True, fg="yellow")}
+You're running Marzban over plain HTTP on {click.style(f'{UVICORN_HOST}:{UVICORN_PORT}', bold=True)}.
+Use this only behind a trusted reverse proxy, such as Nginx Proxy Manager, that handles public TLS.
+                """)
 
-            logger.warning(f"""
+                bind_args['host'] = UVICORN_HOST
+                bind_args['port'] = UVICORN_PORT
+            else:
+
+                logger.warning(f"""
 {click.style('IMPORTANT!', blink=True, bold=True, fg="yellow")}
 You're running Marzban without specifying {click.style('UVICORN_SSL_CERTFILE', italic=True, fg="magenta")} and {click.style('UVICORN_SSL_KEYFILE', italic=True, fg="magenta")}.
 The application will only be accessible through localhost. This means that {click.style('Marzban and subscription URLs will not be accessible externally', bold=True)}.
@@ -83,10 +94,10 @@ Use the following command:
 {click.style(f'ssh -L {UVICORN_PORT}:localhost:{UVICORN_PORT} user@server', italic=True, fg="cyan")}
 
 Then, navigate to {click.style(f'http://127.0.0.1:{UVICORN_PORT}', bold=True)} on your computer.
-            """)
+                """)
 
-            bind_args['host'] = '127.0.0.1'
-            bind_args['port'] = UVICORN_PORT
+                bind_args['host'] = '127.0.0.1'
+                bind_args['port'] = UVICORN_PORT
 
     if DEBUG:
         bind_args['uds'] = None

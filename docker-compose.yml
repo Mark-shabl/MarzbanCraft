@@ -9,6 +9,7 @@ services:
       - path: .env
         required: false
     environment:
+      ALLOW_INSECURE_HTTP: ${ALLOW_INSECURE_HTTP:-true}
       SQLALCHEMY_DATABASE_URL: ${SQLALCHEMY_DATABASE_URL:-mysql+pymysql://marzban:change-this-password@127.0.0.1:3306/marzban}
     depends_on:
       mariadb:

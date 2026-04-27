@@ -29,6 +29,8 @@ SQLALCHEMY_DATABASE_URL = "mysql+pymysql://marzban:change-this-password@127.0.0.
 
 The password in `SQLALCHEMY_DATABASE_URL` must match `MARIADB_PASSWORD`.
 
+`ALLOW_INSECURE_HTTP = True` is enabled so Marzban can bind to `0.0.0.0:8000` behind Nginx Proxy Manager. Do not expose port `8000` publicly unless it is limited to your trusted network.
+
 ## Run
 
 ```bash
@@ -42,53 +44,34 @@ Create the first sudo admin:
 docker compose exec marzban marzban-cli admin create -u admin --sudo
 ```
 
-Marzban runs on `127.0.0.1:8000` when SSL files are not configured. Use Nginx to expose it through the public domain and the internal IP.
+Marzban runs on `0.0.0.0:8000` because `ALLOW_INSECURE_HTTP = True` is enabled. Put it behind Nginx Proxy Manager and let NPM handle TLS for the public domain.
 
-## Nginx
+## Nginx Proxy Manager
 
-Install Nginx and Certbot:
+Create a Proxy Host for the public domain:
 
-```bash
-sudo apt update
-sudo apt install -y nginx certbot python3-certbot-nginx
+```text
+Domain Names: firezone.mark-sandbox.ru
+Scheme: http
+Forward Hostname / IP: SERVER_IP
+Forward Port: 8000
+Websockets Support: enabled
+Block Common Exploits: enabled
+SSL: request a new Let's Encrypt certificate
+Force SSL: enabled
 ```
 
-Create `/etc/nginx/sites-available/marzban`:
+For internal access without a certificate, use:
 
-```nginx
-server {
-    listen 80;
-    server_name firezone.mark-sandbox.ru INTERNAL_SERVER_IP;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Replace `INTERNAL_SERVER_IP` with the real internal server IP. Enable the site:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/marzban /etc/nginx/sites-enabled/marzban
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-Issue the public certificate:
-
-```bash
-sudo certbot --nginx -d firezone.mark-sandbox.ru
+```text
+http://SERVER_INTERNAL_IP:8000/dashboard/
 ```
 
 The dashboard will be available at:
 
 ```text
 https://firezone.mark-sandbox.ru/dashboard/
-http://INTERNAL_SERVER_IP/dashboard/
+http://SERVER_INTERNAL_IP:8000/dashboard/
 ```
 
 ## Proxy Ports

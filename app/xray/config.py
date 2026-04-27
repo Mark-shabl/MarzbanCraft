@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import defaultdict
 from copy import deepcopy
 from pathlib import PosixPath
@@ -14,7 +15,9 @@ from app.db import models as db_models
 from app.models.proxy import ProxyTypes
 from app.models.user import UserStatus
 from app.utils.crypto import get_cert_SANs
-from config import DEBUG, XRAY_EXCLUDE_INBOUND_TAGS, XRAY_FALLBACKS_INBOUND_TAG
+from config import DEBUG, XRAY_EXCLUDE_INBOUND_TAGS, XRAY_FALLBACKS_INBOUND_TAG, XRAY_GENERATED_CONFIG_PATH
+
+logger = logging.getLogger("uvicorn.error")
 
 
 def merge_dicts(a, b):  # B will override A dictionary key and values
@@ -428,6 +431,13 @@ class XRayConfig(dict):
                             del client['flow']
 
                         clients.append(client)
+
+        if XRAY_GENERATED_CONFIG_PATH:
+            try:
+                with open(XRAY_GENERATED_CONFIG_PATH, 'w') as f:
+                    f.write(config.to_json(indent=4))
+            except OSError as exc:
+                logger.warning(f"Unable to write generated Xray config to {XRAY_GENERATED_CONFIG_PATH}: {exc}")
 
         if DEBUG:
             with open('generated_config-debug.json', 'w') as f:

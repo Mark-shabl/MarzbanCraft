@@ -2,6 +2,7 @@ import atexit
 import re
 import subprocess
 import threading
+import time
 from collections import deque
 from contextlib import contextmanager
 
@@ -52,9 +53,9 @@ class XRayCore:
             }
 
     def __capture_process_logs(self):
-        def capture_and_debug_log():
+        def capture_and_debug_log(stream):
             while self.process:
-                output = self.process.stdout.readline()
+                output = stream.readline()
                 if output:
                     output = output.strip()
                     self._logs_buffer.append(output)
@@ -65,9 +66,9 @@ class XRayCore:
                 elif not self.process or self.process.poll() is not None:
                     break
 
-        def capture_only():
+        def capture_only(stream):
             while self.process:
-                output = self.process.stdout.readline()
+                output = stream.readline()
                 if output:
                     output = output.strip()
                     self._logs_buffer.append(output)
@@ -78,9 +79,11 @@ class XRayCore:
                     break
 
         if DEBUG:
-            threading.Thread(target=capture_and_debug_log).start()
+            threading.Thread(target=capture_and_debug_log, args=(self.process.stdout,), daemon=True).start()
+            threading.Thread(target=capture_and_debug_log, args=(self.process.stderr,), daemon=True).start()
         else:
-            threading.Thread(target=capture_only).start()
+            threading.Thread(target=capture_only, args=(self.process.stdout,), daemon=True).start()
+            threading.Thread(target=capture_only, args=(self.process.stderr,), daemon=True).start()
 
     @contextmanager
     def get_logs(self):
@@ -124,9 +127,24 @@ class XRayCore:
             stdout=subprocess.PIPE,
             universal_newlines=True
         )
-        self.process.stdin.write(config.to_json())
+        config_json = config.to_json()
+        self.process.stdin.write(config_json)
         self.process.stdin.flush()
         self.process.stdin.close()
+
+        time.sleep(0.5)
+        if self.process.poll() is not None:
+            stdout = self.process.stdout.read().strip()
+            stderr = self.process.stderr.read().strip()
+            if stdout:
+                logger.error(f"Xray stdout before exit:\n{stdout}")
+            if stderr:
+                logger.error(f"Xray stderr before exit:\n{stderr}")
+
+            return_code = self.process.returncode
+            self.process = None
+            raise RuntimeError(f"Xray core exited immediately with code {return_code}")
+
         logger.warning(f"Xray core {self.version} started")
 
         self.__capture_process_logs()

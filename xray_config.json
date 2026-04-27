@@ -23,6 +23,206 @@
         "clients": [],
         "network": "tcp,udp"
       }
+    },
+    {
+      "tag": "VLESS TCP",
+      "listen": "0.0.0.0",
+      "port": 2083,
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "none"
+      }
+    },
+    {
+      "tag": "VLESS WebSocket",
+      "listen": "0.0.0.0",
+      "port": 2084,
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "path": "/vless"
+        }
+      }
+    },
+    {
+      "tag": "VLESS gRPC",
+      "listen": "0.0.0.0",
+      "port": 2085,
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "grpc",
+        "security": "none",
+        "grpcSettings": {
+          "serviceName": "vless-grpc",
+          "multiMode": false
+        }
+      }
+    },
+    {
+      "tag": "VLESS HTTPUpgrade",
+      "listen": "0.0.0.0",
+      "port": 2086,
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "httpupgrade",
+        "security": "none",
+        "httpupgradeSettings": {
+          "path": "/vless-upgrade"
+        }
+      }
+    },
+    {
+      "tag": "VLESS SplitHTTP",
+      "listen": "0.0.0.0",
+      "port": 2087,
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "splithttp",
+        "security": "none",
+        "splithttpSettings": {
+          "path": "/vless-splithttp",
+          "mode": "auto"
+        }
+      }
+    },
+    {
+      "tag": "VLESS mKCP",
+      "listen": "0.0.0.0",
+      "port": 2100,
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "kcp",
+        "security": "none",
+        "kcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        }
+      }
+    },
+    {
+      "tag": "VMess WebSocket",
+      "listen": "0.0.0.0",
+      "port": 2082,
+      "protocol": "vmess",
+      "settings": {
+        "clients": []
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "path": "/vmess"
+        }
+      }
+    },
+    {
+      "tag": "VMess mKCP",
+      "listen": "0.0.0.0",
+      "port": 2101,
+      "protocol": "vmess",
+      "settings": {
+        "clients": []
+      },
+      "streamSettings": {
+        "network": "kcp",
+        "security": "none",
+        "kcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        }
+      }
+    },
+    {
+      "tag": "VMess gRPC",
+      "listen": "0.0.0.0",
+      "port": 2097,
+      "protocol": "vmess",
+      "settings": {
+        "clients": []
+      },
+      "streamSettings": {
+        "network": "grpc",
+        "security": "none",
+        "grpcSettings": {
+          "serviceName": "vmess-grpc",
+          "multiMode": false
+        }
+      }
+    },
+    {
+      "tag": "Trojan TCP",
+      "listen": "0.0.0.0",
+      "port": 2096,
+      "protocol": "trojan",
+      "settings": {
+        "clients": []
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "none"
+      }
+    },
+    {
+      "tag": "Trojan WebSocket",
+      "listen": "0.0.0.0",
+      "port": 2098,
+      "protocol": "trojan",
+      "settings": {
+        "clients": []
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "path": "/trojan"
+        }
+      }
+    },
+    {
+      "tag": "Trojan gRPC",
+      "listen": "0.0.0.0",
+      "port": 2099,
+      "protocol": "trojan",
+      "settings": {
+        "clients": []
+      },
+      "streamSettings": {
+        "network": "grpc",
+        "security": "none",
+        "grpcSettings": {
+          "serviceName": "trojan-grpc",
+          "multiMode": false
+        }
+      }
     }
   ],
   "outbounds": [

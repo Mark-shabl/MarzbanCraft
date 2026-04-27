@@ -1,8 +1,43 @@
 services:
   marzban:
-    image: gozargah/marzban:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marzban-local:latest
     restart: always
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SQLALCHEMY_DATABASE_URL: ${SQLALCHEMY_DATABASE_URL:-mysql+pymysql://marzban:change-this-password@127.0.0.1:3306/marzban}
+    depends_on:
+      mariadb:
+        condition: service_healthy
     network_mode: host
     volumes:
       - /var/lib/marzban:/var/lib/marzban
+
+  mariadb:
+    image: mariadb:11
+    restart: always
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-marzban}
+      MARIADB_USER: ${MARIADB_USER:-marzban}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-change-this-password}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-change-this-root-password}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mariadb_data:
